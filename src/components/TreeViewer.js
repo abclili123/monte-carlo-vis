@@ -57,7 +57,7 @@ const TreeViewer = ({ treeData, selectedNode, selectedNodeId, onSelectNode }) =>
           visits: d.data.visits
         });
 
-        nodesG.node().appendChild(event.currentTarget);
+        const nodeElement = d3.select(event.currentTarget);
 
         const scale = 2;
         const translateX = width / 2 - scale * (d.x);
@@ -69,6 +69,9 @@ const TreeViewer = ({ treeData, selectedNode, selectedNodeId, onSelectNode }) =>
             zoomRef.current.transform,
             d3.zoomIdentity.translate(translateX, translateY).scale(scale)
           )
+          .on('end', () => {
+            nodeElement.raise();
+          });
       });
 
     nodeGroup.append("circle")
@@ -96,6 +99,13 @@ const TreeViewer = ({ treeData, selectedNode, selectedNodeId, onSelectNode }) =>
     zoomRef.current = zoomBehavior;
 
   }, [treeData, selectedNode, selectedNodeId, onSelectNode]);
+
+  useEffect(() => {
+    if (!selectedNode) {
+      setTooltip(null);
+      resetZoom()
+    }
+  }, [selectedNode, treeData]);
 
   const resetZoom = () => {
     const svg = d3.select(svgRef.current);
