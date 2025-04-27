@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as d3 from 'd3';
 
-const Walkthrough = () => {
+const Walkthrough = ({setShowRecap}) => {
   const [treeData, setTreeData] = useState({
     id: 1,
     wins: 37,
@@ -206,6 +206,9 @@ const Walkthrough = () => {
                   setSelectedPath([bestChild.id]);
                 }
                 setPhase('finalMoveSelection');
+                setTimeout(() => {
+                  setShowRecap(true);
+                }, 3000);                
               }
           
               return newVal;
