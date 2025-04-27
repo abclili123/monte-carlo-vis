@@ -41,7 +41,9 @@ const ExploreWhilePlaying = () => {
       <TicTacToeBoard 
         onBotMoveDone={handleNewTree}
         selectedNode={selectedNode}
-        setSelectedNode = {setSelectedNode}
+        setSelectedNode={setSelectedNode}
+        nIterations={nIterations}
+        cValue={cValue}
       />
       {showTree && treeData && (
         <TreeViewer 
