@@ -3,10 +3,7 @@ import { runMCTS } from './runMCTS';
 
 function Square({ value, realValue, onSquareClick, isPreview }) {
   const isRealMove = realValue !== null;
-
-  const color = isPreview
-    ? (isRealMove ? 'black' : 'lightgray')
-    : 'black';
+  const color = isPreview ? (isRealMove ? 'black' : 'lightgray') : 'black';
 
   return (
     <button 
@@ -32,14 +29,9 @@ function Square({ value, realValue, onSquareClick, isPreview }) {
 
 function calculateWinner(squares) {
   const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
+    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+    [0, 4, 8], [2, 4, 6],
   ];
   for (let [a, b, c] of lines) {
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
@@ -49,127 +41,101 @@ function calculateWinner(squares) {
   return null;
 }
 
-const TicTacToeBoard = ({ onBotMoveDone, selectedNode, setSelectedNode }) => {
+const TicTacToeBoard = ({ onBotMoveDone, selectedNode, setSelectedNode, nIterations, cValue }) => {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
 
   function handleClick(i) {
-    if (selectedNode) return; // Block clicks if previewing
+    if (selectedNode) return;
     if (squares[i] || calculateWinner(squares) || !xIsNext) return;
-  
+
     const nextSquares = squares.slice();
     nextSquares[i] = 'X';
     setSquares(nextSquares);
     setXIsNext(false);
-  }  
+  }
 
   useEffect(() => {
     if (!xIsNext && !calculateWinner(squares)) {
       const botMoveTimeout = setTimeout(() => {
         makeBotMove();
       }, 500);
-
       return () => clearTimeout(botMoveTimeout);
     }
   }, [xIsNext, squares]);
 
   function makeBotMove() {
-    const tree = runMCTS(squares, 100, 1.4, 'O');
+    const tree = runMCTS(squares, nIterations, cValue, 'O');
+    const bestChild = tree.children.reduce((best, child) =>
+      child.visits > best.visits ? child : best,
+      tree.children[0]
+    );
 
-    const bestChild = tree.children.reduce((best, child) => 
-      child.visits > best.visits ? child : best
-    , tree.children[0]);
-  
     if (bestChild) {
       const newBoard = bestChild.board.slice();
       setSquares(newBoard);
       setXIsNext(true);
-  
+
       if (onBotMoveDone) {
         onBotMoveDone(tree, bestChild.id);
       }
     }
   }
-   
+
   const winner = calculateWinner(squares);
+  const isBoardFull = squares.every(square => square !== null);
+  const isGameOver = winner || isBoardFull;
+
   let status;
   if (winner) {
     status = 'Winner: ' + winner;
+  } else if (isBoardFull) {
+    status = 'Draw!';
   } else {
     status = 'Next player: ' + (xIsNext ? 'X' : 'O');
   }
 
+  function handleReset() {
+    setSquares(Array(9).fill(null));
+    setXIsNext(true);
+    if (setSelectedNode) {
+      setSelectedNode(null);
+    }
+    if (onBotMoveDone) {
+      onBotMoveDone(null, null);
+    }
+  }
+
   const displaySquares = selectedNode ? selectedNode.board : squares;
+
   return (
     <>
-    {selectedNode && (
-      <button onClick={() => setSelectedNode(null)} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
-        Return to Live Game
-      </button>
-    )}
-    <div className="game">
-      <div className="status">{status}</div>
-      <div className="board-row">
-        <Square 
-          value={displaySquares[0]} 
-          realValue={squares[0]} 
-          onSquareClick={() => handleClick(0)} 
-          isPreview={!!selectedNode}
-        />
-        <Square 
-          value={displaySquares[1]} 
-          realValue={squares[1]} 
-          onSquareClick={() => handleClick(1)} 
-          isPreview={!!selectedNode}
-        />
-        <Square 
-          value={displaySquares[2]} 
-          realValue={squares[2]} 
-          onSquareClick={() => handleClick(2)} 
-          isPreview={!!selectedNode}
-        />
+      {selectedNode && (
+        <button onClick={() => setSelectedNode(null)} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
+          Return to Live Game
+        </button>
+      )}
+      {isGameOver && (
+        <button onClick={handleReset} className="mt-4 bg-green-500 text-white px-4 py-2 rounded">
+          Reset Game
+        </button>
+      )}
+      <div className="game">
+        <div className="status">{status}</div>
+        {[0, 3, 6].map(row => (
+          <div className="board-row" key={row}>
+            {[0, 1, 2].map(col => (
+              <Square
+                key={row + col}
+                value={displaySquares[row + col]}
+                realValue={squares[row + col]}
+                onSquareClick={() => handleClick(row + col)}
+                isPreview={!!selectedNode}
+              />
+            ))}
+          </div>
+        ))}
       </div>
-      <div className="board-row">
-        <Square 
-          value={displaySquares[3]} 
-          realValue={squares[3]} 
-          onSquareClick={() => handleClick(3)} 
-          isPreview={!!selectedNode}
-        />
-        <Square 
-          value={displaySquares[4]} 
-          realValue={squares[4]} 
-          onSquareClick={() => handleClick(4)} 
-          isPreview={!!selectedNode}
-        />
-        <Square 
-          value={displaySquares[5]} 
-          realValue={squares[5]} 
-          onSquareClick={() => handleClick(5)} 
-          isPreview={!!selectedNode}
-        />
-      </div>
-      <div className="board-row">
-        <Square 
-          value={displaySquares[6]} 
-          realValue={squares[6]} 
-          onSquareClick={() => handleClick(6)} 
-          isPreview={!!selectedNode}
-        />
-        <Square 
-          value={displaySquares[7]} 
-          realValue={squares[7]} 
-          onSquareClick={() => handleClick(7)} 
-          isPreview={!!selectedNode}
-        />
-        <Square 
-          value={displaySquares[8]} 
-          realValue={squares[8]} 
-          onSquareClick={() => handleClick(8)} 
-          isPreview={!!selectedNode}
-        />
-      </div>
-    </div>
     </>
   );
 };
