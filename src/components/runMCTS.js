@@ -31,28 +31,41 @@ function createNode(board, move, player) {
 function select(node, c) {
     const path = [];
     while (true) {
-        path.push(node);
-        if (node.children.length === 0) {
+      path.push(node);
+  
+      if (isTerminal(node.board)) {
         return path;
-        }
-        if (node.children.some(child => child.visits === 0)) {
-        const unexplored = node.children.filter(child => child.visits === 0);
-        const randomUnexplored = unexplored[Math.floor(Math.random() * unexplored.length)];
-        path.push(randomUnexplored);
-        return path;
-        }
-        node = bestUCT(node.children, node.visits, c);
+      }
+  
+      const possibleMoves = getPossibleMoves(node.board);
+      const existingMoves = node.children.map(child => child.move);
+  
+      if (existingMoves.length < possibleMoves.length) {
+        return path;  // Node not fully expanded yet
+      }
+  
+      node = bestUCT(node.children, node.visits, c);
     }
-}
+  }
+  
   
 function expand(node) {
-    if (isTerminal(node.board)) return;
-    
+    if (isTerminal(node.board)) {
+      // Don't expand if node is terminal
+      return;
+    }
+  
     const possibleMoves = getPossibleMoves(node.board);
-    
-    for (let move of possibleMoves) {
+  
+    // Find moves that haven't been expanded yet
+    const existingMoves = node.children.map(child => child.move);
+    const unexpandedMoves = possibleMoves.filter(move => !existingMoves.includes(move));
+  
+    if (unexpandedMoves.length > 0) {
+      // Pick one random unexpanded move
+      const move = unexpandedMoves[Math.floor(Math.random() * unexpandedMoves.length)];
       const newBoard = node.board.slice();
-      newBoard[move] = nextPlayer(node.player);
+      newBoard[move] = nextPlayer(node.player);  // place the opposite player's move
       const newNode = createNode(newBoard, move, nextPlayer(node.player));
       node.children.push(newNode);
     }
