@@ -3,9 +3,10 @@ import Intro from './Intro';
 import Why from './Why';
 import Walkthrough from './Walkthrough';
 import Recap from './Recap';
+import ExploreWhilePlaying from './Explore';
 
 const SectionManager = () => {
-  const [showRecap, setShowRecap] = useState(false);
+  const [showRecap, setShowRecap] = useState(true);
 
   return (
     <div className="w-full">
@@ -24,6 +25,12 @@ const SectionManager = () => {
       {showRecap && (
         <section className="min-h-screen flex items-center justify-center bg-gray-50">
           <Recap />
+        </section>
+      )}
+
+      {showRecap && (
+        <section className="min-h-screen flex items-center justify-center bg-gray-50">
+          <ExploreWhilePlaying />
         </section>
       )}
     </div>

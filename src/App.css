@@ -8,3 +8,28 @@ body {
   max-width: 800px;
   padding: 2rem;
 }
+
+.square {
+  background: white;
+  border: 1px solid #999;
+  float: left;
+  font-size: 48px;
+  font-weight: bold;
+  line-height: 64px;
+  height: 64px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 64px;
+}
+
+.board-row:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+.status {
+  margin-bottom: 10px;
+}
