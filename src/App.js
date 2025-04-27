@@ -1,9 +1,9 @@
 import './App.css';
+import SectionManager from './components/SectionManager';
 
 function App() {
   return (
-    <div className="App">
-    </div>
+    <SectionManager />
   );
 }
 
