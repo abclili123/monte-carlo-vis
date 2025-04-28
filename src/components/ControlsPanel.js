@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 const ControlsPanel = ({ nIterations, cValue, onUpdateParameters, onToggleTree }) => {
   const [nInput, setNInput] = useState(nIterations);
   const [cInput, setCInput] = useState(cValue);
+  const [rolloutPolicy, setRolloutPolicy] = useState('random');
 
   const handleUpdateClick = () => {
-    onUpdateParameters(Number(nInput), Number(cInput));
+    onUpdateParameters(Number(nInput), Number(cInput), rolloutPolicy);
   };
 
   return (
@@ -40,6 +41,18 @@ const ControlsPanel = ({ nIterations, cValue, onUpdateParameters, onToggleTree }
         />
       </label>
 
+      <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        Rollout Policy:
+        <select
+          value={rolloutPolicy}
+          onChange={(e) => setRolloutPolicy(e.target.value)}
+          style={{ width: '120px' }}
+        >
+          <option value="random">Random</option>
+          <option value="heuristic">Heuristic</option>
+        </select>
+      </label>
+
       <button onClick={handleUpdateClick} style={{ padding: '6px 12px' }}>
         Update Parameters
       </button>
@@ -47,6 +60,7 @@ const ControlsPanel = ({ nIterations, cValue, onUpdateParameters, onToggleTree }
       <button onClick={onToggleTree} style={{ padding: '6px 12px' }}>
         Toggle Tree
       </button>
+
     </div>
   );
 };

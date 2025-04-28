@@ -7,6 +7,7 @@ const ExploreWhilePlaying = () => {
   const [showTree, setShowTree] = useState(true);
   const [nIterations, setNIterations] = useState(100);
   const [cValue, setCValue] = useState(1.4);
+  const [rolloutPolicy, setRolloutPolicy] = useState('random');
   const [treeData, setTreeData] = useState(null);
   const [selectedNode, setSelectedNode] = useState(null);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
@@ -20,9 +21,10 @@ const ExploreWhilePlaying = () => {
     setShowTree((prev) => !prev);
   };
 
-  const handleUpdateParameters = (newN, newC) => {
+  const handleUpdateParameters = (newN, newC, newRolloutPolicy) => {
     setNIterations(newN);
     setCValue(newC);
+    setRolloutPolicy(newRolloutPolicy);
   };
 
   const handleSelectNode = (node) => {
@@ -58,6 +60,7 @@ const ExploreWhilePlaying = () => {
           setSelectedNode={setSelectedNode}
           nIterations={nIterations}
           cValue={cValue}
+          rolloutPolicy={rolloutPolicy}
         />
 
         {showTree && treeData && (

@@ -1,16 +1,16 @@
 let globalNodeId = 0;
 
-export function runMCTS(startBoard, nIterations, cValue, botPlayer = 'O') {
+export function runMCTS(startBoard, nIterations, cValue, botPlayer = 'O', rolloutPolicy = 'random') {
     const root = createNode(startBoard, null, oppositePlayer(botPlayer));
 
     for (let i = 0; i < nIterations; i++) {
-    const path = select(root, cValue);
-    const leaf = path[path.length - 1];
-    if (!isTerminal(leaf.board)) {
-        expand(leaf);
-    }
-    const result = simulate(leaf.board, nextPlayer(leaf.player));
-    backpropagate(path, result, botPlayer);
+        const path = select(root, cValue);
+        const leaf = path[path.length - 1];
+        if (!isTerminal(leaf.board)) {
+            expand(leaf);
+        }
+        const result = simulate(leaf.board, nextPlayer(leaf.player), rolloutPolicy);
+        backpropagate(path, result, botPlayer);
     }
 
     return root;
@@ -71,18 +71,39 @@ function expand(node) {
     }
 }  
 
-function simulate(board, player) {
+function simulate(board, player, rolloutPolicy = 'random') {
     let simBoard = board.slice();
     let currentPlayer = player;
 
     while (!isTerminal(simBoard)) {
         const moves = getPossibleMoves(simBoard);
-        const randomMove = moves[Math.floor(Math.random() * moves.length)];
-        simBoard[randomMove] = currentPlayer;
+
+        let move;
+        if (rolloutPolicy === 'heuristic') {
+            move = heuristicMove(simBoard, moves, currentPlayer);
+        } else {
+            move = moves[Math.floor(Math.random() * moves.length)];
+        }
+
+        simBoard[move] = currentPlayer;
         currentPlayer = nextPlayer(currentPlayer);
     }
 
     return getUtility(simBoard);
+}
+
+function heuristicMove(board, moves, player) {
+    // heuristic: center > corners > edges
+    const preferredOrder = [4, 0, 2, 6, 8, 1, 3, 5, 7];
+
+    for (const idx of preferredOrder) {
+        if (moves.includes(idx)) {
+            return idx;
+        }
+    }
+
+    // fallback random
+    return moves[Math.floor(Math.random() * moves.length)];
 }
 
 function backpropagate(path, result, botPlayer) {

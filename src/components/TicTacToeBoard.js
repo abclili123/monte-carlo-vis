@@ -40,7 +40,7 @@ function calculateWinner(squares) {
   return null;
 }
 
-const TicTacToeBoard = ({ onBotMoveDone, selectedNode, setSelectedNode, nIterations, cValue }) => {
+const TicTacToeBoard = ({ onBotMoveDone, selectedNode, setSelectedNode, nIterations, cValue, rolloutPolicy }) => {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
 
@@ -64,7 +64,7 @@ const TicTacToeBoard = ({ onBotMoveDone, selectedNode, setSelectedNode, nIterati
   }, [xIsNext, squares]);
 
   function makeBotMove() {
-    const tree = runMCTS(squares, nIterations, cValue, 'O');
+    const tree = runMCTS(squares, nIterations, cValue, 'O', rolloutPolicy);
     const bestChild = tree.children.reduce((best, child) =>
       child.visits > best.visits ? child : best,
       tree.children[0]
