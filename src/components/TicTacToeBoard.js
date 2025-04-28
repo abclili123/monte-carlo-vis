@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { runMCTS } from './runMCTS';
 
 function Square({ value, realValue, onSquareClick, isPreview }) {
-  const isRealMove = realValue !== null;
+  const isRealMove = (realValue !== null) && value === realValue;
   const color = isPreview ? (isRealMove ? 'black' : 'lightgray') : 'black';
 
   return (
@@ -18,6 +18,7 @@ function Square({ value, realValue, onSquareClick, isPreview }) {
         textAlign: 'center',
         border: '1px solid black',
         backgroundColor: 'white',
+        color: color,
         cursor: 'pointer',
       }}
     >
