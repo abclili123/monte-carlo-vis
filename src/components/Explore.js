@@ -17,7 +17,7 @@ const ExploreWhilePlaying = () => {
   };
 
   const handleToggleTree = () => {
-    setShowTree(prev => !prev);
+    setShowTree((prev) => !prev);
   };
 
   const handleUpdateParameters = (newN, newC) => {
@@ -30,29 +30,46 @@ const ExploreWhilePlaying = () => {
   };
 
   return (
-    <div className="flex flex-col items-center p-8 space-y-6">
-      <h2 className="text-3xl font-bold">Explore While Playing</h2>
-      <ControlsPanel 
-        nIterations={nIterations}
-        cValue={cValue}
-        onUpdateParameters={handleUpdateParameters}
-        onToggleTree={handleToggleTree}
-      />
-      <TicTacToeBoard 
-        onBotMoveDone={handleNewTree}
-        selectedNode={selectedNode}
-        setSelectedNode={setSelectedNode}
-        nIterations={nIterations}
-        cValue={cValue}
-      />
-      {showTree && treeData && (
-        <TreeViewer 
-          treeData={treeData} 
+    <div>
+      <h2>Explore While Playing</h2>
+
+      <div>
+        <ControlsPanel
+          nIterations={nIterations}
+          cValue={cValue}
+          onUpdateParameters={handleUpdateParameters}
+          onToggleTree={handleToggleTree}
+        />
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          gap: '32px',
+          width: '100%',
+        }}
+      >
+        <TicTacToeBoard
+          style={{ flex: 5, minWidth: 0 }}
+          onBotMoveDone={handleNewTree}
           selectedNode={selectedNode}
-          selectedNodeId={selectedNodeId}
-          onSelectNode={handleSelectNode}
-        />      
-      )}
+          setSelectedNode={setSelectedNode}
+          nIterations={nIterations}
+          cValue={cValue}
+        />
+
+        {showTree && treeData && (
+          <TreeViewer
+            style={{ flexShrink: 0, width: "700px" }}
+            treeData={treeData}
+            selectedNode={selectedNode}
+            selectedNodeId={selectedNodeId}
+            onSelectNode={handleSelectNode}
+          />
+        )}
+      </div>
     </div>
   );
 };

@@ -10,12 +10,11 @@ function Square({ value, realValue, onSquareClick, isPreview }) {
       className="square" 
       onClick={onSquareClick}
       style={{ 
-        color: color,
-        fontSize: '32px',
-        width: '64px',
-        height: '64px',
+        fontSize: '48px',
+        width: '100px',
+        height: '100px',
+        lineHeight: '100px',
         fontWeight: 'bold',
-        lineHeight: '64px',
         textAlign: 'center',
         border: '1px solid black',
         backgroundColor: 'white',
@@ -109,14 +108,14 @@ const TicTacToeBoard = ({ onBotMoveDone, selectedNode, setSelectedNode, nIterati
   const displaySquares = selectedNode ? selectedNode.board : squares;
 
   return (
-    <>
+    <div>
       {selectedNode && (
-        <button onClick={() => setSelectedNode(null)} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
+        <button onClick={() => setSelectedNode(null)}>
           Return to Live Game
         </button>
       )}
       {isGameOver && (
-        <button onClick={handleReset} className="mt-4 bg-green-500 text-white px-4 py-2 rounded">
+        <button onClick={handleReset}>
           Reset Game
         </button>
       )}
@@ -136,7 +135,7 @@ const TicTacToeBoard = ({ onBotMoveDone, selectedNode, setSelectedNode, nIterati
           </div>
         ))}
       </div>
-    </>
+    </ div>
   );
 };
 

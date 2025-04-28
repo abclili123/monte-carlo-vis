@@ -10,26 +10,26 @@ const SectionManager = () => {
 
   return (
     <div className="w-full">
-      <section className="min-h-screen flex items-center justify-center bg-white">
+      <section >
         <Intro />
       </section>
 
-      <section className="min-h-screen flex items-center justify-center bg-gray-100">
+      <section >
         <Why />
       </section>
 
-      <section className="min-h-screen bg-white rounded-xl shadow-md flex items-center justify-center">
+      <section >
         <Walkthrough setShowRecap={setShowRecap} />
       </section>
 
       {showRecap && (
-        <section className="min-h-screen flex items-center justify-center bg-gray-50">
+        <section >
           <Recap />
         </section>
       )}
 
       {showRecap && (
-        <section className="min-h-screen flex items-center justify-center bg-gray-50">
+        <section >
           <ExploreWhilePlaying />
         </section>
       )}

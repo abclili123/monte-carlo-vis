@@ -251,188 +251,204 @@ const Walkthrough = ({setShowRecap}) => {
   useEffect(() => {
     setButtonVisible(true);
   }, [phase]);
-  
 
   return (
-    <div className="flex flex-col items-center p-8">
-      <h2 className="text-3xl font-bold mb-6">Monte Carlo Tree Walkthrough</h2>
+    <div>
+      {/* Title on Top */}
+      <h2
+      >
+        Monte Carlo Tree Walkthrough
+      </h2>
 
-      <svg width={width} height={height} className="bg-white shadow-md rounded">
-        {/* try to fix arrows later */}
-        <defs>
-          <marker id="arrow-down" markerWidth="20" markerHeight="20" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="black" />
-          </marker>
-          <marker id="arrow-up" markerWidth="20" markerHeight="20" refX="10" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="black" />
-          </marker>
-        </defs>
-
-
-        {/* Draw edges */}
-        {root.links().map((link, index) => {
-          const isSelectedLink = (phase === 'expansion') && isConnectedInPath(selectedPath, link.source.data.id, link.target.data.id);
-          const isBackpropLink = (phase === 'backpropagation') &&
-            backpropagatePath.includes(link.source.data.id) &&
-            backpropagatePath.includes(link.target.data.id);
-          
-          let markerEnd = null;
-          if (isBackpropLink) {
-            markerEnd = "url(#arrow-up)";
-          } else if (isSelectedLink && phase === 'expansion') {
-            markerEnd = "url(#arrow-down)";
-          }            
-
-          return (
-            <line
-              key={index}
-              x1={link.source.x + margin.left}
-              y1={link.source.y + margin.top}
-              x2={link.target.x + margin.left}
-              y2={link.target.y + margin.top}
-              stroke="black"
-              strokeWidth={isSelectedLink || isBackpropLink ? 4 : 1}
-              markerEnd={markerEnd}
-            />
-          );
-        })}
-
-        {/* Draw nodes */}
-        {root.descendants().map((node, index) => {
-          const isExpandedNode = expandedNodeId === node.data.id;
-          const isSimulationNode = (phase === 'simulation') && (simulationNodeId === node.data.id);
-          const isSelectedNode = (['expansion', 'finalMoveSelection'].includes(phase)) && selectedPath.includes(node.data.id);
-          const isBackpropNode = phase === 'backpropagation' && backpropagatePath.includes(node.data.id);
-
-          return (
-            <g key={index}>
-              <circle
-                cx={node.x + margin.left}
-                cy={node.y + margin.top}
-                r={isExpandedNode || isSimulationNode ? 30 : 26}
-                fill={
-                  isExpandedNode ? "lightgreen" :
-                  isSimulationNode ? "lightgreen" :
-                  isSelectedNode || isBackpropNode ? "gold" :
-                  getColorForDepth(node.depth)
-                }
-                stroke="black"
-                strokeWidth={isSelectedNode || isExpandedNode || isBackpropNode ? 4 : 1}
-              />
-              <text
-                x={node.x + margin.left}
-                y={node.y + margin.top}
-                dy={5}
-                textAnchor="middle"
-                className="text-xs font-bold"
-              >
-                {node.data.wins}/{node.data.visits}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
-
-      {useUCTSelection && (
-        <div className="mb-4 px-4 py-2 bg-green-100 text-green-800 text-sm font-semibold rounded-full">
-          UCT Selection Enabled
-        </div>
-      )}
-
-      {/* Text explanation */}
-      {phase === 'introduceNSimulations' ? (
-        // N Simulations explanation screen
-        <div className="flex flex-col items-center mt-10">
-          <h3 className="text-2xl font-bold mb-4">Simulating Many Times</h3>
-          <p className="text-lg mb-4 text-center max-w-2xl">
-            In real Monte Carlo Tree Search, we don't stop after just a few moves!
-            We run thousands of simulations to explore the tree.
-          </p>
-          <p className="text-md mb-6 text-center max-w-xl">
-            N = Number of simulations.<br/>
-            Let's run N = 25 simulations automatically!
-          </p>
-          <button 
-            onClick={() => {
-              setAutoSimulationsLeft(25);
-              setPhase('selection');
+      {/* SVG + Text Side-by-Side */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          gap: '32px',
+          width: '100%',
+        }}
+      >
+        {/* SVG on the left */}
+        <div style={{ flexShrink: 0, width: "700px" }}>
+          <svg
+            width="100%"
+            height={height}
+            style={{
+              backgroundColor: 'white',
             }}
-            className="mt-6 bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded"
           >
-            Start 25 Simulations
-          </button>
-        </div>
-      ) : phase === 'introduceUCT' ? (
-        // Special UCT screen
-        <div className="flex flex-col items-center mt-10">
-          <h3 className="text-2xl font-bold mb-4">Introducing UCT!</h3>
-          <p className="text-lg mb-4 text-center max-w-2xl">
-            When selecting nodes, we want to balance between <b>exploiting</b> high win rates and <b>exploring</b> less visited nodes.
-          </p>
-          <p className="text-lg mb-2 text-center max-w-2xl">
-            <strong>UCT Formula:</strong><br/>
-            UCT = (Wins / Visits) + c × √( log(Parent Visits) / Visits )
-          </p>
-          <p className="text-md mb-6 text-center max-w-xl">
-            - First part: Win Rate (exploitation)<br/>
-            - Second part: Exploration bonus<br/>
-            - The constant c controls how much we explore!
-          </p>
-          <button 
-            onClick={() => {
-              setUseUCTSelection(true);
-              setPhase('selection');
-            }}
-            className="mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded"
-          >
-            Continue to UCT Walkthrough
-          </button>
-        </div>
-      ) : phase === 'finalMoveSelection' ? (
-        <div className="flex flex-col items-center mt-10">
-          <h3 className="text-2xl font-bold mb-4">Choosing the Move!</h3>
-          <p className="text-lg mb-4 text-center max-w-2xl">
-            After many simulations, we now pick the move with the highest win rate from the root node.
-            This is the move the AI would choose!
-          </p>
-        </div>
-      ) : (
-        <>
-          {autoSimulationsLeft > 0 ? (
-            // Progress Bar during Auto Simulation
-            <div className="mt-8 flex flex-col items-center">
-              <div className="w-64 h-6 bg-gray-300 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-purple-500"
-                  style={{
-                    width: `${((25 - autoSimulationsLeft) / 25) * 100}%`,
-                    transition: 'width 0.2s ease-in-out',
-                  }}
+            {/* try to fix arrows later */}
+            <defs>
+              <marker id="arrow-down" markerWidth="20" markerHeight="20" refX="10" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="black" />
+              </marker>
+              <marker id="arrow-up" markerWidth="20" markerHeight="20" refX="10" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="black" />
+              </marker>
+            </defs>
+
+
+            {/* Draw edges */}
+            {root.links().map((link, index) => {
+              const isSelectedLink = (phase === 'expansion') && isConnectedInPath(selectedPath, link.source.data.id, link.target.data.id);
+              const isBackpropLink = (phase === 'backpropagation') &&
+                backpropagatePath.includes(link.source.data.id) &&
+                backpropagatePath.includes(link.target.data.id);
+              
+              let markerEnd = null;
+              if (isBackpropLink) {
+                markerEnd = "url(#arrow-up)";
+              } else if (isSelectedLink && phase === 'expansion') {
+                markerEnd = "url(#arrow-down)";
+              }            
+
+              return (
+                <line
+                  key={index}
+                  x1={link.source.x + margin.left}
+                  y1={link.source.y + margin.top}
+                  x2={link.target.x + margin.left}
+                  y2={link.target.y + margin.top}
+                  stroke="black"
+                  strokeWidth={isSelectedLink || isBackpropLink ? 4 : 1}
+                  markerEnd={markerEnd}
                 />
-              </div>
-              <p className="mt-2 text-sm font-medium text-gray-700">
-                Simulating {25 - autoSimulationsLeft} / 25
+              );
+            })}
+
+            {/* Draw nodes */}
+            {root.descendants().map((node, index) => {
+              const isExpandedNode = expandedNodeId === node.data.id;
+              const isSimulationNode = (phase === 'simulation') && (simulationNodeId === node.data.id);
+              const isSelectedNode = (['expansion', 'finalMoveSelection'].includes(phase)) && selectedPath.includes(node.data.id);
+              const isBackpropNode = phase === 'backpropagation' && backpropagatePath.includes(node.data.id);
+
+              return (
+                <g key={index}>
+                  <circle
+                    cx={node.x + margin.left}
+                    cy={node.y + margin.top}
+                    r={isExpandedNode || isSimulationNode ? 30 : 26}
+                    fill={
+                      isExpandedNode ? "lightgreen" :
+                      isSimulationNode ? "lightgreen" :
+                      isSelectedNode || isBackpropNode ? "gold" :
+                      getColorForDepth(node.depth)
+                    }
+                    stroke="black"
+                    strokeWidth={isSelectedNode || isExpandedNode || isBackpropNode ? 4 : 1}
+                  />
+                  <text
+                    x={node.x + margin.left}
+                    y={node.y + margin.top}
+                    dy={5}
+                    textAnchor="middle"
+                    className="text-xs font-bold"
+                  >
+                    {node.data.wins}/{node.data.visits}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+
+        {/* Text and Buttons on the right */}
+        <div style={{ flex: 5, minWidth: 0 }}>
+            {phase === 'introduceNSimulations' ? (
+            // N Simulations explanation screen
+            <div>
+              <h3>Simulating Many Times</h3>
+              <p>
+                In real Monte Carlo Tree Search, we don't stop after just a few moves!
+                We run thousands of simulations to explore the tree.
+              </p>
+              <p>
+                N = Number of simulations.<br/>
+                Let's run N = 25 simulations automatically!
+              </p>
+              <button 
+                onClick={() => {
+                  setAutoSimulationsLeft(25);
+                  setPhase('selection');
+                }}
+              >
+                Start 25 Simulations
+              </button>
+            </div>
+          ) : phase === 'introduceUCT' ? (
+            // Special UCT screen
+            <div>
+              <h3>Introducing UCT!</h3>
+              <p>
+                When selecting nodes, we want to balance between <b>exploiting</b> high win rates and <b>exploring</b> less visited nodes.
+              </p>
+              <p>
+                <strong>UCT Formula:</strong><br/>
+                UCT = (Wins / Visits) + c × √( log(Parent Visits) / Visits )
+              </p>
+              <p>
+                - First part: Win Rate (exploitation)<br/>
+                - Second part: Exploration bonus<br/>
+                - The constant c controls how much we explore!
+              </p>
+              <button 
+                onClick={() => {
+                  setUseUCTSelection(true);
+                  setPhase('selection');
+                }}
+              >
+                Continue to UCT Walkthrough
+              </button>
+            </div>
+          ) : phase === 'finalMoveSelection' ? (
+            <div>
+              <h3>Choosing the Move!</h3>
+              <p>
+                After many simulations, we now pick the move with the highest win rate from the root node.
+                This is the move the AI would choose!
               </p>
             </div>
           ) : (
             <>
-              <p className="mt-8 text-lg text-center max-w-xl">{phaseText[phase]}</p>
-              {buttonVisible && (
-                <button 
-                  onClick={handleNextStep}
-                  className="mt-8 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded"
-                >
-                  {phase === 'selection' && 'Select Path'}
-                  {phase === 'expansion' && 'Expand Node'}
-                  {phase === 'simulation' && 'Simulate Playout'}
-                  {phase === 'backpropagation' && 'Backpropagate Result'}
-                </button>
+              {autoSimulationsLeft > 0 ? (
+                // Progress Bar during Auto Simulation
+                <div>
+                  <div>
+                    <div
+                      style={{
+                        width: `${((25 - autoSimulationsLeft) / 25) * 100}%`,
+                        transition: 'width 0.2s ease-in-out',
+                      }}
+                    />
+                  </div>
+                  <p>
+                    Simulating {25 - autoSimulationsLeft} / 25
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <p>{phaseText[phase]}</p>
+                  {buttonVisible && (
+                    <button 
+                      onClick={handleNextStep}
+                    >
+                      {phase === 'selection' && 'Select Path'}
+                      {phase === 'expansion' && 'Expand Node'}
+                      {phase === 'simulation' && 'Simulate Playout'}
+                      {phase === 'backpropagation' && 'Backpropagate Result'}
+                    </button>
+                  )}
+                </>
               )}
             </>
           )}
-        </>
-      )}
+        </div>
+      </div>
     </div>
+
   );
 };
 

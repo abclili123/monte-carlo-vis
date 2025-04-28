@@ -6,6 +6,42 @@ const TreeViewer = ({ treeData, selectedNode, selectedNodeId, onSelectNode }) =>
   const gRef = useRef();
   const zoomRef = useRef();
   const [tooltip, setTooltip] = useState(null);
+  const initialTransformRef = useRef(null);
+
+  // Helper to autoscale tree into view
+  const autoscale = (root) => {
+    const svg = d3.select(svgRef.current);
+    const g = d3.select(gRef.current);
+    const nodes = root.descendants();
+
+    const minX = d3.min(nodes, d => d.x);
+    const maxX = d3.max(nodes, d => d.x);
+    const minY = d3.min(nodes, d => d.y);
+    const maxY = d3.max(nodes, d => d.y);
+
+    const treeWidth = maxX - minX;
+    const treeHeight = maxY - minY;
+
+    const svgWidth = 700;
+    const svgHeight = 400;
+
+    const scale = Math.min(
+      svgWidth / (treeWidth + 100),
+      svgHeight / (treeHeight + 100)
+    );
+
+    const translateX = (svgWidth - treeWidth * scale) / 2 - minX * scale;
+    const translateY = (svgHeight - treeHeight * scale) / 2 - minY * scale;
+
+    const transform = d3.zoomIdentity
+      .translate(translateX, translateY)
+      .scale(scale);
+    
+    initialTransformRef.current = transform;
+
+    g.attr("transform", `translate(${translateX},${translateY}) scale(${scale})`);
+    svg.call(zoomRef.current.transform, transform);
+  };
 
   useEffect(() => {
     if (!treeData) return;
@@ -15,14 +51,12 @@ const TreeViewer = ({ treeData, selectedNode, selectedNodeId, onSelectNode }) =>
 
     g.selectAll("*").remove();
 
-    const width = 600;
+    const width = 700;
     const height = 400;
-    const margin = { top: 40, right: 40, bottom: 40, left: 40 };
-    const layoutWidth = width - margin.left - margin.right;
-    const layoutHeight = height - margin.top - margin.bottom;
 
-    const root = d3.hierarchy(treeData, d => d.children || []);
-    const treeLayout = d3.tree().size([layoutWidth, layoutHeight]);
+    const root = d3.hierarchy(treeData, d => d.children);
+    const treeLayout = d3.tree()
+      .nodeSize([50, 75]);
     treeLayout(root);
 
     const treeG = g.append("g").attr("class", "tree-content");
@@ -57,27 +91,35 @@ const TreeViewer = ({ treeData, selectedNode, selectedNodeId, onSelectNode }) =>
           visits: d.data.visits
         });
 
-        const nodeElement = d3.select(event.currentTarget);
+        d3.select(gRef.current)
+          .selectAll("circle")
+          .attr("fill", n => {
+            if (n.data && n.data.id === d.data.id) return "gold"; // clicked one
+            if (selectedNodeId && n.data && n.data.id === selectedNodeId) return "lightgreen"; // previously best move
+            return getColorForDepth(n.depth);
+        });
 
-        const scale = 2;
-        const translateX = width / 2 - scale * (d.x);
-        const translateY = height / 2 - scale * (d.y);
+        const svgWidth = 700;
+        const svgHeight = 400;
+        const zoomScale = 2;
 
-        svg.transition()
+        const translateX = svgWidth / 2 - d.x * zoomScale;
+        const translateY = svgHeight / 2 - d.y * zoomScale;
+
+        const transform = d3.zoomIdentity
+          .translate(translateX, translateY)
+          .scale(zoomScale);
+
+        d3.select(svgRef.current)
+          .transition()
           .duration(750)
-          .call(
-            zoomRef.current.transform,
-            d3.zoomIdentity.translate(translateX, translateY).scale(scale)
-          )
-          .on('end', () => {
-            nodeElement.raise();
-          });
+          .call(zoomRef.current.transform, transform);
+
       });
 
     nodeGroup.append("circle")
       .attr("r", 20)
       .attr("fill", d => {
-        if (selectedNode && selectedNode.id === d.data.id) return "gold";
         if (selectedNodeId && selectedNodeId === d.data.id) return "lightgreen";
         return getColorForDepth(d.depth);
       })
@@ -97,28 +139,34 @@ const TreeViewer = ({ treeData, selectedNode, selectedNodeId, onSelectNode }) =>
 
     svg.call(zoomBehavior);
     zoomRef.current = zoomBehavior;
+    
+    setTimeout(() => {
+      autoscale(root);
+    }, 0);      
 
-  }, [treeData, selectedNode, selectedNodeId, onSelectNode]);
+  }, [treeData]);
 
   useEffect(() => {
     if (!selectedNode) {
       setTooltip(null);
-      resetZoom()
+      resetZoom();
     }
   }, [selectedNode, treeData]);
 
   const resetZoom = () => {
-    const svg = d3.select(svgRef.current);
-    svg.transition()
+    if (!initialTransformRef.current) return;
+  
+    d3.select(svgRef.current)
+      .transition()
       .duration(750)
-      .call(zoomRef.current.transform, d3.zoomIdentity.translate(40, 40));
-  };
+      .call(zoomRef.current.transform, initialTransformRef.current);
+  };    
 
   return (
     <div style={{ position: 'relative' }}>
-      <svg ref={svgRef} width={600} height={400} className="bg-white shadow-md rounded overflow-hidden">
-        <g ref={gRef} transform="translate(40,40)" />
-        <foreignObject x={500} y={10} width={90} height={35}>
+      <svg ref={svgRef} width={700} height={400}>
+        <g ref={gRef} transform="translate(0,0)" />
+        <foreignObject x={610} y={10} width={90} height={35}>
           <button onClick={resetZoom} style={{ width: '80px', height: '35px', background: 'white', fontSize: '12px', color: 'black', borderRadius: '4px', border: 'black 1px solid' }}>Reset Zoom</button>
         </foreignObject>
       </svg>

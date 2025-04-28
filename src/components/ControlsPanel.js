@@ -9,42 +9,44 @@ const ControlsPanel = ({ nIterations, cValue, onUpdateParameters, onToggleTree }
   };
 
   return (
-    <div className="flex flex-col items-center space-y-4 p-4 bg-gray-100 rounded-lg shadow-md">
-      <div className="flex space-x-4">
-        <div>
-          <label className="block text-sm font-medium">N Iterations</label>
-          <input
-            type="number"
-            className="border rounded p-1 w-24"
-            value={nInput}
-            onChange={(e) => setNInput(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">C Value</label>
-          <input
-            type="number"
-            className="border rounded p-1 w-24"
-            step="0.1"
-            value={cInput}
-            onChange={(e) => setCInput(e.target.value)}
-          />
-        </div>
-      </div>
-      <div className="flex space-x-4">
-        <button
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-          onClick={handleUpdateClick}
-        >
-          Update
-        </button>
-        <button
-          className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
-          onClick={onToggleTree}
-        >
-          Toggle Tree
-        </button>
-      </div>
+    <div
+      style={{
+        padding: '16px',
+        border: '1px solid #ccc',
+        borderRadius: '8px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+      }}
+    >
+      <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        N Iterations:
+        <input
+          type="number"
+          value={nInput}
+          onChange={(e) => setNInput(e.target.value)}
+          style={{ width: '80px' }}
+        />
+      </label>
+
+      <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        C Value:
+        <input
+          type="number"
+          step="0.1"
+          value={cInput}
+          onChange={(e) => setCInput(e.target.value)}
+          style={{ width: '80px' }}
+        />
+      </label>
+
+      <button onClick={handleUpdateClick} style={{ padding: '6px 12px' }}>
+        Update Parameters
+      </button>
+
+      <button onClick={onToggleTree} style={{ padding: '6px 12px' }}>
+        Toggle Tree
+      </button>
     </div>
   );
 };
