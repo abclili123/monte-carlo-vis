@@ -26,7 +26,7 @@ const Walkthrough = ({setShowRecap}) => {
   });
 
   const [nextId, setNextId] = useState(12);
-  const [phase, setPhase] = useState('selection');
+  const [phase, setPhase] = useState('intro');
   const [selectedPath, setSelectedPath] = useState([]);
   const [expandedNodeId, setExpandedNodeId] = useState(null);
   const [simulationNodeId, setSimulationNodeId] = useState(null);
@@ -46,10 +46,11 @@ const Walkthrough = ({setShowRecap}) => {
   const treeLayout = d3.tree().size([layoutWidth, layoutHeight]);
 
   const phaseText = {
-    selection: "Step 1: Traverse the tree by selecting the most promising path.",
-    expansion: "Step 2: Expand by adding a new child node (representing a new move).",
-    simulation: "Step 3: Simulate a random playthrough from the newly expanded node.",
-    backpropagation: "Step 4: Backpropagate the simulation result up the selected path.",
+    intro: "Here we have a partial MCTS. The root of the tree is the game state we are starting at. The blue nodes represent opponent moves, and the red nodes represent self moves. The numbers inside the nodes represent the number of wins / the number of visits to that node, but we will get to this later.",
+    selection: "Step 1 - Selection\nFirst, we start at the root node, and traverse down the tree until we find a node to expand.",
+    expansion: "Step 2 - Expansion:\nNext, we will expand the node by adding a new child node. This represents a new move.",
+    simulation: "Step 3 - Simulation:\nHere, we will simulate a playthrough from this node. Depending on our implementation we can change our rollout policy, the move simulated to either be random or based on game heuristics. We might even want to use a combination of both since we don't know if our opponent will play the perfect game!",
+    backpropagation: "Step 4 - Backpropagation:\nAfter we simulate, we will now have a new value of wins/ number of times visited. At this step, we backpropagate the simulation result up the selected path.",
     introduceUCT: "Notice how we are only exploring the best-looking moves and ignoring others. This is where UCT helps balance exploration and exploitation!",
     finalMoveSelection: "Now we select the move with the highest win rate from the root. This represents the move the AI would play!"
 
@@ -88,7 +89,7 @@ const Walkthrough = ({setShowRecap}) => {
         // After UCT is enabled:
         const winRate = node.visits > 0 ? node.wins / node.visits : 0;
         const exploration = Math.sqrt(Math.log(Math.max(parentNode.visits, 1)) / Math.max(node.visits, 1));
-        const c = 1.4; // exploration parameter
+        const c = 5; // exploration parameter
         return winRate + c * exploration;
       };
       
@@ -252,6 +253,7 @@ const Walkthrough = ({setShowRecap}) => {
     setButtonVisible(true);
   }, [phase]);
 
+  console.log(phase)
   return (
     <div>
       {/* Title on Top */}
@@ -362,8 +364,8 @@ const Walkthrough = ({setShowRecap}) => {
             <div>
               <h3>Simulating Many Times</h3>
               <p>
-                In real Monte Carlo Tree Search, we don't stop after just a few moves!
-                We run thousands of simulations to explore the tree.
+                Great! We explored other paths. But, we only completed 6 interations. In MCTS, 
+                we run many simulations to explore the tree before chosing a move.
               </p>
               <p>
                 N = Number of simulations.<br/>
@@ -381,18 +383,21 @@ const Walkthrough = ({setShowRecap}) => {
           ) : phase === 'introduceUCT' ? (
             // Special UCT screen
             <div>
-              <h3>Introducing UCT!</h3>
+              <h3>Introducing Upper Confidence Traversal</h3>
               <p>
-                When selecting nodes, we want to balance between <b>exploiting</b> high win rates and <b>exploring</b> less visited nodes.
+                So far, you might have noticed that when selecting nodes, we are only exploring the node with the highest win rate.
+                What we really want is balance between <b>exploiting</b> high win rates and <b>exploring</b> less visited nodes.
+                There is where upper confidence traversal (UCT) comes in. We can use the following formula to select nodes:
               </p>
               <p>
                 <strong>UCT Formula:</strong><br/>
                 UCT = (Wins / Visits) + c × √( log(Parent Visits) / Visits )
               </p>
               <p>
-                - First part: Win Rate (exploitation)<br/>
-                - Second part: Exploration bonus<br/>
-                - The constant c controls how much we explore!
+                - The term on the left of the + is our win rate, the amount of wins at a given node, representing exploitation.<br/>
+                - The term on the right of the + repesents exploration. It shows how much we have visited that node. The less amount
+                of visits to that node, the smaller the denominator will be resulting in a larger exploration term.<br/>
+                - c is a constant multiplying factor for our exploratory term, allowing us to weight exploration stronger!
               </p>
               <button 
                 onClick={() => {
@@ -400,16 +405,31 @@ const Walkthrough = ({setShowRecap}) => {
                   setPhase('selection');
                 }}
               >
-                Continue to UCT Walkthrough
+                See walkthough with UCT!
               </button>
             </div>
           ) : phase === 'finalMoveSelection' ? (
             <div>
               <h3>Choosing the Move!</h3>
               <p>
-                After many simulations, we now pick the move with the highest win rate from the root node.
-                This is the move the AI would choose!
+                After many simulations, we now select the move with the highest win rate! See the highlighted node in yellow.
               </p>
+              <p>
+                Now that you understand how MCTS works, scroll down for a recap!
+              </p>
+            </div>
+          ) : phase === 'intro' ? (
+            <div>
+              <p>{phaseText[phase]}</p>
+              {buttonVisible && (
+                <button 
+                onClick={() => {
+                  setPhase('selection');
+                }}
+                >
+                  {phase === 'intro' && 'Start MCTS'}
+                </button>
+              )}
             </div>
           ) : (
             <>
@@ -430,7 +450,10 @@ const Walkthrough = ({setShowRecap}) => {
                 </div>
               ) : (
                 <>
-                  <p>{phaseText[phase]}</p>
+                { ((cyclesCompleted === 1) && (phase === 'selection')) && (
+                  <p>Now that we have walked through one interation, let's see two more!</p>
+                )}
+                  {cyclesCompleted === 0 && (<p>{phaseText[phase]}</p>)}
                   {buttonVisible && (
                     <button 
                       onClick={handleNextStep}
@@ -439,6 +462,7 @@ const Walkthrough = ({setShowRecap}) => {
                       {phase === 'expansion' && 'Expand Node'}
                       {phase === 'simulation' && 'Simulate Playout'}
                       {phase === 'backpropagation' && 'Backpropagate Result'}
+                      {phase === 'intro' && 'Start MCTS'}
                     </button>
                   )}
                 </>

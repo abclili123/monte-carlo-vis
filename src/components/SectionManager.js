@@ -15,10 +15,6 @@ const SectionManager = () => {
       </section>
 
       <section >
-        <Why />
-      </section>
-
-      <section >
         <Walkthrough setShowRecap={setShowRecap} />
       </section>
 
