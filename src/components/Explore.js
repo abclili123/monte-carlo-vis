@@ -69,6 +69,7 @@ const ExploreWhilePlaying = () => {
           alignItems: 'flex-start',
           gap: '32px',
           width: '100%',
+          paddingTop: '15px'
         }}
       >
         <TicTacToeBoard
