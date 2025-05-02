@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as d3 from 'd3';
 
-const Walkthrough = ({setShowRecap}) => {
+const Walkthrough = () => {
   const [treeData, setTreeData] = useState({
     id: 1,
     wins: 37,
@@ -49,7 +49,7 @@ const Walkthrough = ({setShowRecap}) => {
     intro: "Here we have a partial MCTS. The root of the tree is the game state we are starting at. The blue nodes represent opponent moves, and the red nodes represent self moves. The numbers inside the nodes represent the number of wins / the number of visits to that node, but we will get to this later.",
     selection: "Step 1 - Selection\nFirst, we start at the root node, and traverse down the tree until we find a node to expand.",
     expansion: "Step 2 - Expansion:\nNext, we will expand the node by adding a new child node. This represents a new move.",
-    simulation: "Step 3 - Simulation:\nHere, we will simulate a playthrough from this node. Depending on our implementation we can change our rollout policy, the move simulated to either be random or based on game heuristics. We might even want to use a combination of both since we don't know if our opponent will play the perfect game!",
+    simulation: "Step 3 - Simulation:\nHere, we will simulate a playthrough from this node. Depending on our implementation we can change our rollout policy, the move simulated, to either be random or based on game heuristics. We might even want to use a combination of both since we don't know if our opponent will play the perfect game!",
     backpropagation: "Step 4 - Backpropagation:\nAfter we simulate, we will now have a new value of wins/ number of times visited. At this step, we backpropagate the simulation result up the selected path.",
     introduceUCT: "Notice how we are only exploring the best-looking moves and ignoring others. This is where UCT helps balance exploration and exploitation!",
     finalMoveSelection: "Now we select the move with the highest win rate from the root. This represents the move the AI would play!"
@@ -207,9 +207,7 @@ const Walkthrough = ({setShowRecap}) => {
                   setSelectedPath([bestChild.id]);
                 }
                 setPhase('finalMoveSelection');
-                setTimeout(() => {
-                  setShowRecap(true);
-                }, 3000);                
+              
               }
           
               return newVal;

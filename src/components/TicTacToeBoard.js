@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { runMCTS } from './runMCTS';
 
 function Square({ value, realValue, onSquareClick, isPreview }) {
@@ -41,7 +41,7 @@ function calculateWinner(squares) {
   return null;
 }
 
-const TicTacToeBoard = ({ onBotMoveDone, selectedNode, setSelectedNode, nIterations, cValue, rolloutPolicy }) => {
+const TicTacToeBoard = forwardRef(({ onBotMoveDone, selectedNode, setSelectedNode, nIterations, cValue, rolloutPolicy, setTreeData }, ref) => {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
 
@@ -98,6 +98,7 @@ const TicTacToeBoard = ({ onBotMoveDone, selectedNode, setSelectedNode, nIterati
   function handleReset() {
     setSquares(Array(9).fill(null));
     setXIsNext(true);
+    setTreeData(null);
     if (setSelectedNode) {
       setSelectedNode(null);
     }
@@ -106,6 +107,10 @@ const TicTacToeBoard = ({ onBotMoveDone, selectedNode, setSelectedNode, nIterati
     }
   }
 
+  useImperativeHandle(ref, () => ({
+    handleReset,
+  }));
+
   const displaySquares = selectedNode ? selectedNode.board : squares;
 
   return (
@@ -113,11 +118,6 @@ const TicTacToeBoard = ({ onBotMoveDone, selectedNode, setSelectedNode, nIterati
       {selectedNode && (
         <button onClick={() => setSelectedNode(null)}>
           Return to Live Game
-        </button>
-      )}
-      {isGameOver && (
-        <button onClick={handleReset}>
-          Reset Game
         </button>
       )}
       <div className="game">
@@ -138,6 +138,6 @@ const TicTacToeBoard = ({ onBotMoveDone, selectedNode, setSelectedNode, nIterati
       </div>
     </ div>
   );
-};
+});
 
 export default TicTacToeBoard;

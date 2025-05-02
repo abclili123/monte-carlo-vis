@@ -6,10 +6,10 @@ const MoveConfidenceChart = ({ treeData }) => {
   const svgRef = useRef();
 
   useEffect(() => {
-    if (!treeData || !treeData.children) return;
-
     const svg = d3.select(svgRef.current);
-    svg.selectAll("*").remove(); // Clear previous render
+    svg.selectAll("*").remove();
+
+    if (!treeData || !treeData.children) return;
 
     const width = 500;
     const height = 500;
@@ -17,7 +17,7 @@ const MoveConfidenceChart = ({ treeData }) => {
     const miniBoardSize = 30;
 
     const chartWidth = width - margin.left - margin.right;
-    const chartHeight = height - margin.top - margin.bottom - miniBoardSize - 40; // subtract mini-boards + legend space
+    const chartHeight = height - margin.top - margin.bottom - miniBoardSize - 40;
 
     const moves = treeData.children.map(child => ({
       move: child.move,
@@ -47,11 +47,9 @@ const MoveConfidenceChart = ({ treeData }) => {
     const g = svg.append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Y-axis
     g.append("g")
       .call(d3.axisLeft(yScale).ticks(5));
 
-    // Y-axis label
     g.append("text")
       .attr("transform", "rotate(-90)")
       .attr("x", -chartHeight/2)
@@ -60,7 +58,6 @@ const MoveConfidenceChart = ({ treeData }) => {
       .attr("font-size", "12px")
       .text("Number of Visits");
 
-    // Bars
     const bars = g.selectAll(".bar")
       .data(moves)
       .enter()
@@ -76,10 +73,9 @@ const MoveConfidenceChart = ({ treeData }) => {
       .on("mouseover", function(event, d) {
         const svg = d3.select(svgRef.current);
       
-        // Create tooltip once
         const tooltip = svg.append("g")
           .attr("id", "tooltip")
-          .style("pointer-events", "none") // prevent blocking mouse events
+          .style("pointer-events", "none")
           .style("opacity", 0);
       
         tooltip.append("rect")
@@ -115,8 +111,6 @@ const MoveConfidenceChart = ({ treeData }) => {
         d3.select(svgRef.current).select("#tooltip").remove();
       });
       
-
-    // Mini TicTacToe boards
     bars.append("g")
       .attr("transform", `translate(${xScale.bandwidth()/2 - miniBoardSize/2},${chartHeight + 10})`)
       .each(function(d) {
@@ -133,7 +127,6 @@ const MoveConfidenceChart = ({ treeData }) => {
         }
       });
 
-    // X-axis label
     g.append("text")
       .attr("x", chartWidth/2)
       .attr("y", chartHeight + miniBoardSize + 40)
@@ -141,7 +134,6 @@ const MoveConfidenceChart = ({ treeData }) => {
       .attr("font-size", "14px")
       .text("Explored Moves");
 
-    // Color Legend
     const legendY = chartHeight + miniBoardSize + 90;
     const legend = svg.append("g")
       .attr("transform", `translate(${width/2 - 100},${legendY})`);

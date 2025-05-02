@@ -4,10 +4,9 @@ import Why from './Why';
 import Walkthrough from './Walkthrough';
 import Recap from './Recap';
 import ExploreWhilePlaying from './Explore';
+import References from './References';
 
 const SectionManager = () => {
-  const [showRecap, setShowRecap] = useState(true);
-
   return (
     <div className="w-full">
       <section >
@@ -15,20 +14,21 @@ const SectionManager = () => {
       </section>
 
       <section >
-        <Walkthrough setShowRecap={setShowRecap} />
+        <Walkthrough/>
       </section>
 
-      {showRecap && (
-        <section >
-          <Recap />
-        </section>
-      )}
+      <section >
+        <Recap />
+      </section>
 
-      {showRecap && (
-        <section >
-          <ExploreWhilePlaying />
-        </section>
-      )}
+      <section >
+        <ExploreWhilePlaying />
+      </section>
+
+      <section >
+        <References />
+      </section>
+
     </div>
   );
 };

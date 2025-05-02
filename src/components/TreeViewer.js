@@ -160,7 +160,15 @@ const TreeViewer = ({ treeData, selectedNode, selectedNodeId, onSelectNode }) =>
       .transition()
       .duration(750)
       .call(zoomRef.current.transform, initialTransformRef.current);
-  };    
+  };  
+  
+  if (!treeData) {
+    return (
+      <svg width={700} height={400}>
+        {/* Empty tree viewer */}
+      </svg>
+    );
+  }
 
   return (
     <div style={{ position: 'relative' }}>

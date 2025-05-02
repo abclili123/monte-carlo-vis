@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const ControlsPanel = ({ nIterations, cValue, onUpdateParameters, onToggleTree }) => {
+const ControlsPanel = ({ nIterations, cValue, onUpdateParameters, onResetGame }) => {
   const [nInput, setNInput] = useState(nIterations);
   const [cInput, setCInput] = useState(cValue);
   const [rolloutPolicy, setRolloutPolicy] = useState('random');
@@ -57,8 +57,8 @@ const ControlsPanel = ({ nIterations, cValue, onUpdateParameters, onToggleTree }
         Update Parameters
       </button>
 
-      <button onClick={onToggleTree} style={{ padding: '6px 12px' }}>
-        Toggle Tree
+      <button onClick={onResetGame} style={{ padding: '6px 12px' }}>
+        Reset Game
       </button>
 
     </div>
