@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/monte-carlo-vis/static/css/main.bfbe4269.css",
+    "main.js": "/monte-carlo-vis/static/js/main.b10769b8.js",
+    "static/js/453.60fd392a.chunk.js": "/monte-carlo-vis/static/js/453.60fd392a.chunk.js",
+    "index.html": "/monte-carlo-vis/index.html",
+    "main.bfbe4269.css.map": "/monte-carlo-vis/static/css/main.bfbe4269.css.map",
+    "main.b10769b8.js.map": "/monte-carlo-vis/static/js/main.b10769b8.js.map",
+    "453.60fd392a.chunk.js.map": "/monte-carlo-vis/static/js/453.60fd392a.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.bfbe4269.css",
+    "static/js/main.b10769b8.js"
+  ]
+}
